@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> 
+  <head>
+    <meta charset="utf-8">
+    <title>On Demand MC</title>
+  </head>
+  <body>
+    <h1> On Demand Minecraft Server </h1>
+    <form ic="passForm">
+        <input id="passInput" placeholder="Password"></input>
+    <form/>
+    <button id="startButton">Start Server</button>
+  </body>
+
+  <!-- Javascript for server start  request -->
+  <script src="{{ url_for('static', filename='js/serverStart.js') }}"></script>
+
+</html>

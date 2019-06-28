@@ -1,6 +1,7 @@
 import sys
+import os
 import boto3
-sys.path.append('../')
+sys.path.append(os.path.dirname(os.path.abspath("configuration.py")))
 from configuration import Config
 
 client = boto3.resource(

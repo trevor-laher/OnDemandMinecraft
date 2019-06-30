@@ -81,20 +81,20 @@ This step will configure the AWS Linux server to run the minecraft server. It wi
 	<code>sudo apt install openjdk-11-jdk-headless</code>
 	If this doesn't work you can use <code>sudo apt list</code> and search through these packages for an alternative java version.
 
-4. Open up an FTP client such as FileZilla and connect to the same address as the same user with the same IP address. Drag all files in **instanceSetup** into the root directory of the current user (probably **ubuntu**, for the purposes of these commands I will be using **ubuntu**, but feel free to replace with your own user if appropriate).
+4. Open up an FTP client such as FileZilla and connect to the same address as the same user with the same IP address. Drag all files from the **instanceSetup** folder from this repository, into the root directory of the current user (probably **ubuntu**, for the purposes of these commands I will be using **ubuntu**, but feel free to replace with your own user if appropriate).
 
 5.  Download the desired Minecraft server version from [https://www.minecraft.net/en-us/download/server/](https://www.minecraft.net/en-us/download/server/), rename it **server.jar** and drag it into the root directory of the user using FileZilla.
 
-6. Using the FTP client, create a new folder in the root directory of the current user called **screens**
-
-7. In the SSH client, create a folder in the current directory with the command:
+6. Using the FTP client, create a new folder in the root directory of the current user called **screens**  
+OR  
+In the SSH client, create a folder in the current directory with the command:
 	<code>sudo mkdir screens</code>
-8. Then execute the following command:
+7. Then execute the following command:
    <code>sudo chmod 700 /home/ubuntu</code>
-9. Then execute the next command:
-  <code>sudo export SCREENDIR=/home/ubuntu/screens</code>
-10. Then execute the command:
-  <code>sudo crontab /home/ubuntu/crontab</code>
+8. Then execute the next command:
+  <code>export SCREENDIR=/home/ubuntu/screens</code>
+9. Then execute the command:
+  <code>crontab /home/ubuntu/crontab</code>
 
 	Feel free to close the server through the AWS console or execute the command:
 	<code>sudo /sbin/shutdown -P +1</code>

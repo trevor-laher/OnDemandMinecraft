@@ -1,0 +1,5 @@
+*.pyc
+/venv/
+/.vscode/
+.DS_STORE
+*.pem

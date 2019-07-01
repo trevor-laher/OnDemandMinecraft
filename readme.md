@@ -94,7 +94,7 @@ In the SSH client, create a folder in the current directory with the command:
 8. Then execute the next command:
   <code>export SCREENDIR=/home/ubuntu/screens</code>
 9. Then execute the command:
-  <code>crontab /home/ubuntu/crontab</code>
+  <code>sudo crontab /home/ubuntu/crontab</code>
 
 	Feel free to close the server through the AWS console or execute the command:
 	<code>sudo /sbin/shutdown -P +1</code>

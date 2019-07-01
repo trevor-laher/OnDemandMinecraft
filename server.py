@@ -37,7 +37,7 @@ def serverWaitOk(instanceIp, client):
     if checksPassed:
         initServerCommands(instanceIp)
     else:
-        print('An error has occured booting the server')
+        print('An error has occurred booting the server')
     
 #SSH connects to server and executes command to boot minecraft server
 def initServerCommands(instanceIp):
@@ -150,3 +150,7 @@ def startServer(client):
     p = Process(target=serverWaitOk, args=(ipAddress, client))
     p.start()
     return returnString
+
+
+if __name__ == "__main__":
+    app.run()

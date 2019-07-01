@@ -47,7 +47,7 @@ def initServerCommands(instanceIp):
         sshClient.connect(hostname=instanceIp, username="ubuntu", pkey=key)
 
         # Execute a command(cmd) after connecting/ssh to an instance
-        stdin, stdout, stderr = sshClient.exec_command("screen -dmS minecraft bash -c 'sudo java -Xmx1024M -Xms1024M -jar server.jar nogui'")
+        stdin, stdout, stderr = sshClient.exec_command("screen -dmS minecraft bash -c 'sudo java " + Config.MEMORY_ALLOCATION + "-jar server.jar nogui'")
         print("COMMAND EXECUTED")
         # close the client connection once the job is done
         sshClient.close()

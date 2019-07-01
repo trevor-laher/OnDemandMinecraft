@@ -102,6 +102,9 @@ This step will configure the AWS Linux server to run the minecraft server. It wi
 At this point you may restart the server from the Web Application using the password you configured. You should then be able to play!
 
 # Additional Remarks
+## Minecraft Memory Configuration
+The server startup command does not specify memory constraints by default, but is available to be specified in Configuration.py. In the event that you configure this from an empty string, **the trailing space is required** as in the example below. Traditional minecraft server flags apply for this configuration.
+<code>MEMORY_ALLOCATION='-Xmx1024M -Xms1024M '</code>
 ## UI Configuration
 The title and header for the site can be changed in **/templates/index.html**. Feel free to add any more content or styling to the site, though be careful not to change any form, input, button, or script elements in the template.
 

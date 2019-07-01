@@ -13,6 +13,5 @@ class Config:
     SSH_KEY_FILE_PATH = ''
 
     #Server Memory Size
-
-    MEMORY_ALLOCATION='' 
     #This is default to no memory specification but can be: '-Xmx1024M -Xms1024M ' (KEEP TRAILING SPACE)
+    MEMORY_ALLOCATION='' 

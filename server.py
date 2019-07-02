@@ -18,6 +18,8 @@ key = paramiko.RSAKey.from_private_key_file(filename)
 sshClient = paramiko.SSHClient()
 sshClient.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
+LAST_KNOWN_IP = ''
+
 #Waits for the server to reach a valid state so that commands can be executed on the server
 def serverWaitOk(instanceIp, client):
 
@@ -58,12 +60,13 @@ def initServerCommands(instanceIp):
 #Main endpoint for loading the webpage
 @app.route('/')
 def loadIndex():
-    return render_template('index.html')
+    return render_template('index.html', ip_addr=LAST_KNOWN_IP)
 
 @app.route('/initServerMC', methods = ['POST'])
 def initServerMC():
     inputPass = request.form['pass']
     returnData = {}
+    global LAST_KNOWN_IP
 
     if inputPass == Config.SERVER_PASSWORD:
         #Instantiate server here or return ip address if already running
@@ -75,6 +78,7 @@ def initServerMC():
         )
 
         ipAddress = manageServer(client)
+        LAST_KNOWN_IP = ipAddress
         returnData['ip'] = ipAddress
         returnData['success'] = True
     else:
@@ -94,6 +98,7 @@ def manageServer(client):
     response = client.describe_instances(InstanceIds = instanceIds)
     reservations = response['Reservations']
     reservation = reservations[0]
+    global LAST_KNOWN_IP
 
     instances = reservation['Instances']
     
@@ -110,6 +115,7 @@ def manageServer(client):
             returnString = startServer(client)
         elif stateName == 'running':
             returnString = 'IP: ' + instance['PublicIpAddress']
+            LAST_KNOWN_IP = instance['PublicIpAddress']
         else:
             returnString = 'ERROR'
     return returnString
@@ -120,6 +126,7 @@ def startServer(client):
     returnString = 'ERROR'
     instanceIds = [Config.INSTANCE_ID]
     response = client.start_instances(InstanceIds = instanceIds)
+    global LAST_KNOWN_IP
 
     stateCode = 0
 
@@ -145,6 +152,7 @@ def startServer(client):
         print("\n")
         
     ipAddress = instance['PublicIpAddress']
+    LAST_KNOWN_IP = ipAddress
     returnString = 'Server is starting, this may take a few minutes.\nIP: ' + ipAddress
     #SETUP MULTIPROCESSING HERE INSTEAD OF REDIS
     p = Process(target=serverWaitOk, args=(ipAddress, client))

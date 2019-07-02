@@ -8,10 +8,11 @@
   </head>
   <body>
     <h1> On Demand Minecraft Server </h1>
-    <form ic="passForm">
-        <input id="passInput" placeholder="Password"></input>
+    <form action="{{ url_for('initServerMC') }}", method="POST">
+     <input type="text" name="pass" placeholder="Password">
+     <input type="submit" value="Start Server">
     </form>
-    <button id="startButton">Start Server</button>
+    <h2>{{ ipMessage }} </h2>
   </body>
 
   <!-- Javascript for server start  request -->

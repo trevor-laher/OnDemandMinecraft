@@ -24,7 +24,7 @@ if ps ax | grep -v grep | grep $SERVICE > /dev/null; then
 	fi
 else
 	echo "Screen does not exist, briefly waiting before trying again"
-	sleep 1m
+	sleep 5m
 	if ! ps ax | grep -v grep | grep $SERVICE > /dev/null; then
 		echo "Screen does not exist, shutting down"
 		$(sudo /sbin/shutdown -P +1)

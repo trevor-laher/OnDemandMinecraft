@@ -11,11 +11,11 @@ client = boto3.resource(
             region_name=Config.ec2_region
         )
 response = client.create_instances(ImageId = Config.ec2_amis[0],
-    InstanceType = Config.ec2_instancetype, 
+    InstanceType = Config.ec2_instancetype,
     KeyName = Config.ec2_keypair,
     MaxCount = 1,
     MinCount = 1,
-    SecurityGroups = Config.ec2_secgroups)
+    SecurityGroupIds = Config.ec2_secgroups)
 
 print("INSTANCE CREATED")
 print("INSTANCE ID: " + response[0].id)

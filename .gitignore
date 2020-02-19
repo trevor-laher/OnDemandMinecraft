@@ -3,3 +3,4 @@
 /.vscode/
 .DS_STORE
 *.pem
+/.vs/slnx.sqlite

@@ -6,7 +6,7 @@ class Config:
     ec2_region = ""
     ec2_amis = ['']
     ec2_keypair = ''
-    ec2_secgroups = ['']
+    ec2_secgroups = [''] #ID Not Name
     ec2_instancetype = ''
 
     #SSH Key Path

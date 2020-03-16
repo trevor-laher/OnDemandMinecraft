@@ -110,3 +110,9 @@ The title and header for the site can be changed in **/templates/index.html**. F
 
 ## Server Maintenance
 Maintaining the server is fairly straightforward and is done primarily through FileZilla. Updating the server file can be done by downloading the new server file, renaming it to **server.jar** and replacing the old file on the server. The world file can be backed up to your PC manually though there is no automated process at this time.
+
+## Troouble Shooting Issues
+Issues with boto3, try running:
+```
+python -m pip install --user boto3
+```

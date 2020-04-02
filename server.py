@@ -18,28 +18,33 @@ key = paramiko.RSAKey.from_private_key_file(filename)
 sshClient = paramiko.SSHClient()
 sshClient.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-#Waits for the server to reach a valid state so that commands can be executed on the server
+# Waits for the server to reach a valid state so that commands can be executed on the server
+
+
 def serverWaitOk(instanceIp, client):
 
     checksPassed = False
     status = 'initializing'
-    instanceIds=[Config.INSTANCE_ID]
+    instanceIds = [Config.INSTANCE_ID]
 
     while (not checksPassed) and (status == 'initializing'):
-        statusCheckResponse = client.describe_instance_status(InstanceIds = instanceIds)
+        statusCheckResponse = client.describe_instance_status(
+            InstanceIds=instanceIds)
         instanceStatuses = statusCheckResponse['InstanceStatuses']
         instanceStatus = instanceStatuses[0]
         instanceStatus = instanceStatus['InstanceStatus']
         status = instanceStatus['Status']
         checksPassed = status == 'ok'
         time.sleep(5)
-    
+
     if checksPassed:
         initServerCommands(instanceIp)
     else:
         print('An error has occurred booting the server')
-    
-#SSH connects to server and executes command to boot minecraft server
+
+# SSH connects to server and executes command to boot minecraft server
+
+
 def initServerCommands(instanceIp):
     # Connect/ssh to an instance
     try:
@@ -47,7 +52,8 @@ def initServerCommands(instanceIp):
         sshClient.connect(hostname=instanceIp, username="ubuntu", pkey=key)
 
         # Execute a command(cmd) after connecting/ssh to an instance
-        stdin, stdout, stderr = sshClient.exec_command("screen -dmS minecraft bash -c 'sudo java " + Config.MEMORY_ALLOCATION + "-jar server.jar nogui'")
+        stdin, stdout, stderr = sshClient.exec_command(
+            "screen -dmS minecraft bash -c 'sudo java " + Config.MEMORY_ALLOCATION + "-jar server.jar nogui'")
         print("COMMAND EXECUTED")
         # close the client connection once the job is done
         sshClient.close()
@@ -55,12 +61,15 @@ def initServerCommands(instanceIp):
     except:
         print('Error running server commands')
 
-#Main endpoint for loading the webpage
+# Main endpoint for loading the webpage
+
+
 @app.route('/')
 def loadIndex():
     return render_template('index.html')
 
-@app.route('/initServerMC', methods = ['POST'])
+
+@app.route('/initServerMC', methods=['POST'])
 def initServerMC():
     inputPass = request.form['pass']
     returnData = {}
@@ -68,7 +77,7 @@ def initServerMC():
     message = "Password Incorrect!"
 
     if inputPass == Config.SERVER_PASSWORD:
-        #Instantiate server here or return ip address if already running
+        # Instantiate server here or return ip address if already running
         client = boto3.client(
             'ec2',
             aws_access_key_id=Config.ACCESS_KEY,
@@ -76,22 +85,22 @@ def initServerMC():
             region_name=Config.ec2_region
         )
         message = manageServer(client)
-    
+
     print(message)
     return render_template('index.html', ipMessage=message)
 
 
-#Gets IP Address for return to webpage otherwise boots server
+# Gets IP Address for return to webpage otherwise boots server
 def manageServer(client):
     returnString = 'ERROR'
 
     instanceIds = [Config.INSTANCE_ID]
-    response = client.describe_instances(InstanceIds = instanceIds)
+    response = client.describe_instances(InstanceIds=instanceIds)
     reservations = response['Reservations']
     reservation = reservations[0]
 
     instances = reservation['Instances']
-    
+
     print("\nSERVER INSTANCES\n")
     print(instances)
     print("\n")
@@ -101,7 +110,7 @@ def manageServer(client):
         stateName = state['Name']
 
         if (stateName == 'stopped') or (stateName == 'shutting-down'):
-            #SETUP MULTIPROCESSING HERE INSTEAD OF REDIS
+            # SETUP MULTIPROCESSING HERE INSTEAD OF REDIS
             returnString = startServer(client)
         elif stateName == 'running':
             returnString = 'IP: ' + instance['PublicIpAddress']
@@ -109,12 +118,14 @@ def manageServer(client):
             returnString = 'ERROR'
     return returnString
 
-#Starts the specified AWS Instance from the configuration
+# Starts the specified AWS Instance from the configuration
+
+
 def startServer(client):
-    #Gets proper variables to attempt to instantiate EC2 instance and start minecraft server
+    # Gets proper variables to attempt to instantiate EC2 instance and start minecraft server
     returnString = 'ERROR'
     instanceIds = [Config.INSTANCE_ID]
-    response = client.start_instances(InstanceIds = instanceIds)
+    response = client.start_instances(InstanceIds=instanceIds)
 
     stateCode = 0
 
@@ -125,7 +136,7 @@ def startServer(client):
         print(str(response))
         print('\n')
 
-        response = client.describe_instances(InstanceIds = instanceIds)
+        response = client.describe_instances(InstanceIds=instanceIds)
         reservations = response['Reservations']
         reservation = reservations[0]
 
@@ -134,14 +145,14 @@ def startServer(client):
 
         state = instance['State']
         stateCode = state['Code']
-        
+
         print("\nSERVER INSTANCES\n")
         print(instances)
         print("\n")
-        
+
     ipAddress = instance['PublicIpAddress']
     returnString = 'Server is starting, this may take a few minutes.\nIP: ' + ipAddress
-    #SETUP MULTIPROCESSING HERE INSTEAD OF REDIS
+    # SETUP MULTIPROCESSING HERE INSTEAD OF REDIS
     p = Process(target=serverWaitOk, args=(ipAddress, client))
     p.start()
     return returnString

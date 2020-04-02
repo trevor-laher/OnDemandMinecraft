@@ -4,3 +4,5 @@
 .DS_STORE
 *.pem
 /.vs/slnx.sqlite
+.env
+env/

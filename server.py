@@ -17,11 +17,8 @@ key = paramiko.RSAKey.from_private_key(io.StringIO(key_string))
 sshClient = paramiko.SSHClient()
 sshClient.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-# Waits for the server to reach a valid state so that commands can be executed on the server
-
-
 def serverWaitOk(instanceIp, client):
-
+    """Waits for the server to reach a valid state so that commands can be executed on the server"""
     checksPassed = False
     status = 'initializing'
     instanceIds = [os.getenv('INSTANCE_ID')]
@@ -41,10 +38,9 @@ def serverWaitOk(instanceIp, client):
     else:
         print('An error has occurred booting the server')
 
-# SSH connects to server and executes command to boot minecraft server
-
 
 def initServerCommands(instanceIp):
+    """SSH connects to server and executes command to boot minecraft server"""
     # Connect/ssh to an instance
     try:
         # Here 'ubuntu' is user name and 'instance_ip' is public IP of EC2
@@ -61,11 +57,10 @@ def initServerCommands(instanceIp):
         print('Error running server commands')
         print(err)
 
-# Main endpoint for loading the webpage
-
 
 @app.route('/')
 def loadIndex():
+    """Main endpoint for loading the webpage"""
     return render_template('index.html')
 
 
@@ -90,8 +85,8 @@ def initServerMC():
     return render_template('index.html', ipMessage=message)
 
 
-# Gets IP Address for return to webpage otherwise boots server
 def manageServer(client):
+    """Gets IP Address for return to webpage otherwise boots server"""
     returnString = 'ERROR'
 
     instanceIds = [os.getenv('INSTANCE_ID')]
@@ -118,10 +113,8 @@ def manageServer(client):
             returnString = 'ERROR'
     return returnString
 
-# Starts the specified AWS Instance from the configuration
-
-
 def startServer(client):
+    """Starts the specified AWS Instance from the configuration"""
     # Gets proper variables to attempt to instantiate EC2 instance and start minecraft server
     returnString = 'ERROR'
     instanceIds = [os.getenv('INSTANCE_ID')]

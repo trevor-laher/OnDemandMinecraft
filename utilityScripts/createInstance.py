@@ -4,10 +4,17 @@ import boto3
 sys.path.append(os.path.dirname(os.path.abspath("configuration.py")))
 from configuration import Config
 
+if not len(sys.argv) == 3:
+    print("Usage: createInstance.py <AWS access key> <AWS secret key>")
+    sys.exit()
+
+ACCESS_KEY = sys.argv[1]
+SECRET_KEY = sys.argv[2]
+
 client = boto3.resource(
             'ec2',
-            aws_access_key_id=Config.ACCESS_KEY,
-            aws_secret_access_key=Config.SECRET_KEY,
+            aws_access_key_id=ACCESS_KEY,
+            aws_secret_access_key=SECRET_KEY,
             region_name=Config.ec2_region
         )
 response = client.create_instances(ImageId = Config.ec2_amis[0],

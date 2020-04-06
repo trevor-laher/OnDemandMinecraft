@@ -4,13 +4,28 @@ Using a Python Flask application and AWS, this repository launches an AWS EC2 In
 Note that this configuration will likely require familiarity with programming, SSH, and the command line.
 
 
-# AWS Setup
-This step will properly configure your AWS account and configuration.py file so that an instance can be created via the createInstance.py script.
+# Web Application Setup
 
- 1. Create or access an **AWS Account**. Under the **User Dropdown** in the    **Toolbar**, select **Security Credentials**, then **Access Keys**, and finally **Create New Access Key**. Download this file, open it, and copy the values of **AWSAccessKeyId** and **AWSSecretKey** to **ACCESS_KEY** and **SECRET_KEY** in the **configuration.py** file in the root directory of the repository.
-	
-	<code>ACCESS_KEY = 'YourAWSAccessKeyIdHere'
-	SECRET_KEY  =  'YourAWSSecretKeyHere'</code> 
+In this step the project will get linked to Heroku's free hosting. This part of the application provides a rudimentary UI and Web URL for users to start the server. Before we deploy the webapp, we will configure it with information about the AWS instance in the next section.
+
+ 1. Create or have access to a Heroku account.
+ 2. Install and setup the **Heroku CLI** onto your computer. [https://devcenter.heroku.com/articles/heroku-cli#download-and-install](https://devcenter.heroku.com/articles/heroku-cli#download-and-install)
+ 3. In the command line for the directory of this project, type:
+	 <code>heroku create YourProjectNameHere</code>
+
+ Now the webapp should be visible in the Heroku dashboard, but it is not deployed yet.
+
+# AWS Setup
+This step will properly configure your AWS account and configuration.py file so that an instance can be created via the createInstance.py script. We will also set configuration variables for the heroku webapp so that it knows how to access the instance.
+
+ 1. Create or access an **AWS Account**. Under the **User Dropdown** in the    **Toolbar**, select **Security Credentials**, then **Access Keys**, and finally **Create New Access Key**. Download this file, open it, and make note of the values of **AWSAccessKeyId** and **AWSSecretKey**. Later, we will supply these to the instance creation script. For now, we need to allow the heroku app to access them by setting them as configuration variables.
+
+	<code>
+	heroku config:set ACCESS_KEY=Your-access-key-here
+	</code>
+	<code>
+	heroku config:set SECRET_KEY=Your-secret-key-here
+	</code>
 
  3. Navigate to the **EC2 Dashboard** under the **Services Dropdown** and select **Security Groups** in the sidebar. Select **Create Security Group**, input **minecraft** for the **Security group name**. Create **Inbound Rules** for the following:
 	 - Type: **SSH** Protocol: **TCP** Port Range: **22** Source: **Anywhere**
@@ -21,15 +36,20 @@ This step will properly configure your AWS account and configuration.py file so 
 	 
 	 <code>ec2_secgroups =  ['YourGroupNameHere']</code>
 
-3. Under the **EC2 Dashboard** navigate to **Key Pairs** in the sidebar. Select **Create Key Pair**, provide a name and create. Move the file that is downloaded into the root directory of the project. In **configuration.py** in the root directory, set ** ec2_keypair** to the name entered, and **SSH_KEY_FILE_NAME** to the name.pem of the file downloaded.
+3. Under the **EC2 Dashboard** navigate to **Key Pairs** in the sidebar. Select **Create Key Pair**, provide a name and create. Move the file that is downloaded into the root directory of the project (or somewhere else safe) so that you can use it to SSH into the instance later. In **configuration.py** in the root directory, set **ec2_keypair** to the name entered. Also configure the heroku webapp with the contents of the key file.
 
-	THIS MIGHT BE SUBJECT TO CHANGE
-		<code>ec2_keypair =  'YourKeyPairName'
-		SSH_KEY_FILE_PATH  =  './YourKeyFileName.pem'</code>
+	Inside **configuration.py**:
+		<code>ec2_keypair =  'YourKeyPairName'</code>
+	
+	To configure heroku, it is easiest to copy-paste the contents of the file via the [heroku dashboard](https://dashboard.heroku.com). Select your app, go to **Settings**, scroll down to **Config Vars**, and add a new one with the name `SSH_KEY` and the value as the contents of the private key file you downloaded.
 
-4. This step is concerned with creating the AWS instance. View [https://docs.aws.amazon.com/general/latest/gr/rande.html](https://docs.aws.amazon.com/general/latest/gr/rande.html) (Or google AWS Regions), and copy the  **Region** column for the **Region Name** of where you wish to host your server. In **configuration.py** of the root directory, set the **ec2_region** variable to the copied value.
+4. This step is concerned with creating the AWS instance. View [https://docs.aws.amazon.com/general/latest/gr/rande.html](https://docs.aws.amazon.com/general/latest/gr/rande.html) (Or google AWS Regions), and copy the  **Region** column for the **Region Name** of where you wish to host your server. In **configuration.py** of the root directory, set the **ec2_region** variable to the copied value. Also configure the heroku app.
 
-	<code>ec2_region =  "Your-Region-Here"</code>
+	Inside **configuration.py**:
+		<code>ec2_region =  "Your-Region-Here"</code>
+
+	On the command line:
+		<code>heroku config:set EC2_REGION=Your-Region-Here</code>
 
 5. Navigate to [https://aws.amazon.com/ec2/instance-types/](https://aws.amazon.com/ec2/instance-types/) and select one of the T3 types (with the memory and CPU you desire, I recommend 10 players/GB). Copy the value in the **Model** column. I've configured mine to use **t3.small**. In **configuration.py** of the root directory, set the **ec2_instancetype** variable to the copied value.
 
@@ -43,29 +63,27 @@ This step will properly configure your AWS account and configuration.py file so 
 
 	<code>pip install -r requirements.txt</code>
 	
-	After successful installation of dependencies execute:
+	After successful installation of dependencies execute the script with the AWS access key and secret key as arguments from step 1.
 
-	<code>python utilityScripts/createInstance.py</code>
+	<code>python utilityScripts/createInstance.py <Your access key here> <Your secret key here></code>
 
-	Copy the **Instance ID** that is output into the terminal. In **configuration.py** of the root directory, set the **INSTANCE_ID** variable to the copied value.
+	Copy the **Instance ID** that is output into the terminal. Tell the heroku webapp that this is your instance id.
 
-	<code>INSTANCE_ID  =  'i-yourInstanceIdHere'</code>
+	<code>heroku config:set INSTANCE_ID=i-yourInstanceIdHere</code>
 
 
 # Web Application Deployment
-In this step the project will get deployed to Heroku's free hosting. This part of the application provides a rudimentary UI and Web URL for users to start the server.
 
-Before deployment it will be important to set the password for the server to start. In **configuration.py** of the root directory, set the **SERVER_PASSWORD** variable to the password of your choosing.
+Now we have created the ec2 instance and configured the webapp configuration variables, we are almost ready to deploy the webapp.
 
-   <code>SERVER_PASSWORD='YourPasswordHere'</code>
- 1. Create or have access to a Heroku account.
- 2. Install and setup the **Heroku CLI** onto your computer. [https://devcenter.heroku.com/articles/heroku-cli#download-and-install](https://devcenter.heroku.com/articles/heroku-cli#download-and-install)
- 3. In the command line for the directory of this project, type:
-	 <code>heroku create YourProjectNameHere</code>
-4. Once this new project has been created, it is time to push the project to Heroku.
+Before deployment it will be important to set the password for the server to start. Set the **SERVER_PASSWORD** config variable to the password of your choosing.
+
+   <code>heroku config:set SERVER_PASSWORD="YourPasswordHere"</code>
+ 
+1. Once this new project has been created, it is time to push the project to Heroku.
 	<code>git push heroku master</code>
-5. The URL to your hosted site should be: YourProjectNameHere.herokuapp.com
-6. Access your site and launch/access your server!
+2. The URL to your hosted site should be: YourProjectNameHere.herokuapp.com
+3. Access your site and launch/access your server!
 
 # AWS Instance Configuration
 This step will configure the AWS Linux server to run the minecraft server. It will include SSH connecting to the server, gaining admin privileges, installing java, directory setup, moving shell scripts onto the server, and making a CRON job for these shell scripts. Note that this step will include both an SSH client and a File Transfer client (such as FileZilla) on your PC.

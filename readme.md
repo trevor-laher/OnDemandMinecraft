@@ -39,7 +39,7 @@ This step will properly configure your AWS account and configuration.py file so 
 
 	<code>ec2_amis =  ['ami-YourImageIdHere']</code>
 
-7. At this point you should have the necessary configuration to create a new instance through the **createInstance.py** script in the **root** folder. Open a command line in the root directory of the project, and execute:
+7. At this point you should have the necessary configuration to create a new instance through the **createInstance.py** script in the **utilityScripts** folder. Open a command line in the root directory of the project, and execute:
 
 	<code>pip install -r requirements.txt</code>
 	

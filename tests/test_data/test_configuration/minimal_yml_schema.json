@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "property1": {
+      "type": "string"
+    },
+    "property2": {
+      "$ref": "#/definitions/property2"
+    },
+    "property3": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "property1"
+  ],
+  "definitions": {
+    "property2": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "additionalProperties": false,
+      "required": [
+        "subproperty1",
+        "subproperty2"
+      ],
+      "properties": {
+        "subproperty1": {
+          "type": "number",
+          "enum": [
+            1,
+            2
+          ]
+        },
+        "subproperty2": {
+          "type": "array"
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

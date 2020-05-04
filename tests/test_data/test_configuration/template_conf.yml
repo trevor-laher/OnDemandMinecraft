@@ -1,0 +1,19 @@
+aws:
+  - config:
+      access_key: access_key_1
+      secret_key: secret_key_1
+      instance_id: instance_id_1
+      ec2_region: ec2_region_1
+      ec2_amis:
+        - ec2_ami_1
+      ec2_keypair: ec2_keypair_1
+      ec2_secgroups:
+        - ec2_secgroup_1
+      ec2_instancetype: ec2_instancetype_1
+mineserver:
+  - config:
+      ssh_key_file_path: ssh_key_file_path_1
+      memory_allocation: memory_allocation_1
+web_client:
+  - config:
+      server_password: server_password_1

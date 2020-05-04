@@ -1,0 +1,19 @@
+aws:
+  - config:
+      access_key: !ENV ${ACCESS_KEY}
+      secret_key: !ENV ${SECRET_KEY}
+      instance_id: !ENV ${INSTANCE_ID}
+      ec2_region: eu-central-1
+      ec2_amis:
+        - ami-0b6f46ba4d94838a0
+      ec2_keypair: !ENV ${EC2_KEYPAIR}
+      ec2_secgroups:
+        - MinecraftSecurityGroup
+      ec2_instancetype: t3.small
+mineserver:
+  - config:
+      ssh_key_file_path: !ENV ${SSH_KEY_FILE_PATH}
+      memory_allocation: !ENV ${MEMORY_ALLOCATION}
+web_client:
+  - config:
+      server_password: !ENV ${SERVER_PASSWORD}

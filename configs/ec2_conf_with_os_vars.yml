@@ -1,3 +1,5 @@
+# For using an os variable instead of a static value, do it like this:
+# example_setting_name: !ENV ${OS_VARIABLE_NAME}
 aws:
   - config:
       access_key: !ENV ${ACCESS_KEY}
@@ -8,7 +10,7 @@ aws:
         - ami-0b6f46ba4d94838a0
       ec2_keypair: !ENV ${EC2_KEYPAIR}
       ec2_secgroups:
-        - MinecraftSecurityGroup
+        - !ENV ${SECURITY_GROUP}
       ec2_instancetype: t3.small
 mineserver:
   - config:
@@ -17,3 +19,8 @@ mineserver:
 web_client:
   - config:
       server_password: !ENV ${SERVER_PASSWORD}
+# Optional
+cloudstore:
+  - config:
+      api_key: !ENV ${DROPBOX_API_KEY}
+      remote_folder: OnDemandMinecraft

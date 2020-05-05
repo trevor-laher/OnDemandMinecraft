@@ -1,20 +1,30 @@
 from flask import Flask, render_template, request
 from flask_cors import CORS
 from multiprocessing import Process
-from configuration.configuration import Configuration
+import argparse
 import logging
 import logging.handlers
-import argparse
 import boto3
 import time
 import paramiko
 import os
+
+from configuration.configuration import Configuration
+from cloudstore.dropbox_cloudstore import DropboxCloudstore
 
 app = Flask(__name__)
 CORS(app)
 
 
 def _setup_log(log_path: str = 'logs/output.log', debug: bool = False) -> None:
+    """
+    Initialized the logging.
+
+    :param log_path:
+    :param debug:
+    :return:
+    """
+
     log_path = log_path.split(os.sep)
     if len(log_path) > 1:
 
@@ -35,6 +45,12 @@ def _setup_log(log_path: str = 'logs/output.log', debug: bool = False) -> None:
 
 
 def _argparser() -> argparse.Namespace:
+    """
+    Parses the command line arguments given.
+
+    :return:
+    """
+
     parser = argparse.ArgumentParser(
         description='An AWS hosted Minecraft server that will only run when players are active. '
                     'Players can start the server through a simple UI accessed through free Heroku server hosting.',
@@ -50,7 +66,7 @@ def _argparser() -> argparse.Namespace:
     # Optional args
     optional = parser.add_argument_group('Optional Arguments')
     optional.add_argument('-r', '--run-mode', help="The type of operation desired to run",
-                          choices=['run_flask', 'create_instance'], default='run_flask')
+                          choices=['run_flask', 'create_instance', 'upload_key_file'], default='run_flask')
     optional.add_argument('-l', '--log', help="Name of the output log file", default='logs/out.log')
     optional.add_argument('-d', '--debug', action='store_true', help='Enables the debug log messages')
     optional.add_argument("-h", "--help", action="help", help="Show this help message and exit")
@@ -81,6 +97,7 @@ class Mineserver:
 
         :return:
         """
+
         returnString = 'ERROR'
 
         instanceIds = [self.instance_id]
@@ -154,8 +171,15 @@ class Mineserver:
 
         return returnString
 
-    # Waits for the server to reach a valid state so that commands can be executed on the server
     def server_wait_ok(self, instanceIp, client):
+        """
+        Waits for the server to reach a valid state so that commands can be executed on the server
+
+        :param instanceIp:
+        :param client:
+        :return:
+        """
+
         checksPassed = False
         status = 'initializing'
         instanceIds = [self.instance_id]
@@ -192,7 +216,13 @@ class Mineserver:
             logger.error('Error running server commands')
 
 
-def create_instance():
+def create_instance() -> None:
+    """
+    Creates a new aws ec2 instance based on the yml configuration.
+
+    :return:
+    """
+
     client = boto3.resource(
         'ec2',
         aws_access_key_id=aws_config['access_key'],
@@ -208,6 +238,35 @@ def create_instance():
 
     logger.info("INSTANCE CREATED")
     logger.info("INSTANCE ID: " + response[0].id)
+
+
+def upload_key_file(cloudstore: DropboxCloudstore, key_file_path: str) -> None:
+    """
+    Uploads the ssh key file to Dropbox so that it will be available for download from Heroku.
+
+    :param cloudstore:
+    :param key_file_path:
+    :return:
+    """
+
+    logger.info("Uploading file from path '%s' to Dropbox.." % key_file_path)
+    with open(key_file_path, 'rb') as key_file:
+        cloudstore.upload_file(file_bytes=key_file.read(), upload_path='MinecraftKeyPair.pem')
+    logger.info("Upload finished.")
+
+
+def download_key_file(cloudstore: DropboxCloudstore, key_file_path: str) -> None:
+    """
+    Downloads the ssh key file from Dropbox so that it can be used for this run.
+
+    :param cloudstore:
+    :param key_file_path:
+    :return:
+    """
+
+    logger.info("Downloading file from Dropbox to path '%s'.." % key_file_path)
+    cloudstore.download_file(fromfile='MinecraftKeyPair.pem', tofile=key_file_path)
+    logger.info("Download finished.")
 
 
 # Main endpoint for loading the webpage
@@ -251,6 +310,12 @@ if __name__ == "__main__":
 
     if args.run_mode == 'run_flask':
         logger = logging.getLogger('Flask App')
+        # Download key file from Dropbox if requested
+        if 'cloudstore' in config.config_attributes:
+            cloudstore_config = config.get_cloudstore_configs()[0]
+            cloudstore = DropboxCloudstore(config=cloudstore_config)
+            download_key_file(cloudstore=cloudstore,
+                              key_file_path=mineserver_config['ssh_key_file_path'])
         # Setup paraminko ssh information
         logger.debug("Setting up paraminko ssh information")
         key = paramiko.RSAKey.from_private_key_file(mineserver_config['ssh_key_file_path'])
@@ -267,5 +332,11 @@ if __name__ == "__main__":
     elif args.run_mode == 'create_instance':
         logger = logging.getLogger('Create Instance')
         create_instance()
+    elif args.run_mode == 'upload_key_file':
+        logger = logging.getLogger('Upload Key File')
+        cloudstore_config = config.get_cloudstore_configs()[0]
+        cloudstore = DropboxCloudstore(config=cloudstore_config)
+        upload_key_file(cloudstore=cloudstore,
+                        key_file_path=mineserver_config['ssh_key_file_path'])
     else:
         raise argparse.ArgumentTypeError('Invalid run mode specified!')

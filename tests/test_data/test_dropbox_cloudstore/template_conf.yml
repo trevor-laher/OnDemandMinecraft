@@ -1,0 +1,23 @@
+cloudstore:
+  - config:
+      api_key: !ENV ${DROPBOX_API_KEY}
+      remote_folder: OnDemandMinecraft_cloudstore_tests
+aws:
+  - config:
+      access_key: your_access_key
+      secret_key: your_secret_key
+      instance_id: your_instance_id
+      ec2_region: ec2_region
+      ec2_amis:
+        - ec2_ami
+      ec2_keypair: your_ec2_keypair
+      ec2_secgroups:
+        - your_ec2_secgroup
+      ec2_instancetype: ec2_instancetype
+mineserver:
+  - config:
+      ssh_key_file_path: keys/your_ssh_key_file_name
+      memory_allocation: '-Xmx1024M -Xms1024M -XX:+UseConcMarkSweepGC '
+web_client:
+  - config:
+      server_password: your_server_password

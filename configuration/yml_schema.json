@@ -10,6 +10,9 @@
     },
     "web_client": {
       "$ref": "#/definitions/web_client"
+    },
+    "cloudstore": {
+      "$ref": "#/definitions/cloudstore"
     }
   },
   "required": [
@@ -123,6 +126,34 @@
           ],
           "properties": {
             "server_password": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        }
+      }
+    },
+    "cloudstore": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "additionalProperties": false,
+      "required": [
+        "config"
+      ],
+      "properties": {
+        "config": {
+          "type": "object",
+          "required": [
+            "api_key",
+            "remote_folder"
+          ],
+          "properties": {
+            "api_key": {
+              "type": "string"
+            },
+            "remote_folder": {
               "type": "string"
             }
           },

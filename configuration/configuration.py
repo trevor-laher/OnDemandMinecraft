@@ -12,13 +12,14 @@ logger = logging.getLogger('Configuration')
 
 
 class Configuration:
-    __slots__ = ('config', 'config_path', 'aws', 'mineserver', 'web_client')
+    __slots__ = ('config', 'config_path', 'aws', 'mineserver', 'web_client', 'cloudstore')
 
     config: Dict
     config_path: str
     aws: Dict
     mineserver: Dict
     web_client: Dict
+    cloudstore: Dict
     config_attributes: List = list()
     env_variable_tag: str = '!ENV'
     env_variable_pattern: str = r'.*?\${(\w+)}.*?'  # ${var}
@@ -41,7 +42,7 @@ class Configuration:
         # Validate the config
         validate_json_schema(self.config, configuration_schema)
         # Set the config properties as instance attributes
-        all_config_attributes = ('aws', 'mineserver', 'web_client')
+        all_config_attributes = ('aws', 'mineserver', 'web_client', 'cloudstore')
         for config_attribute in all_config_attributes:
             if config_attribute in self.config.keys():
                 setattr(self, config_attribute, self.config[config_attribute])
@@ -116,6 +117,12 @@ class Configuration:
             return [sub_config['config'] for sub_config in self.web_client]
         else:
             raise ConfigurationError('Config property web_client not set!')
+
+    def get_cloudstore_configs(self) -> List:
+        if 'cloudstore' in self.config_attributes:
+            return [sub_config['config'] for sub_config in self.cloudstore]
+        else:
+            raise ConfigurationError('Config property cloudstore not set!')
 
     def to_yml(self, fn: Union[str, _io.TextIOWrapper]) -> None:
         """

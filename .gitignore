@@ -133,3 +133,5 @@ dmypy.json
 
 # Project-specific
 /tests/test_data/test_configuration/actual_output_to_yaml.yml
+/tests/test_data/test_dropbox_cloudstore/xjaqygayma.txt
+/tests/test_data/test_dropbox_cloudstore/actual_downloaded.txt

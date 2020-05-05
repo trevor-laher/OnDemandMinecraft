@@ -1,0 +1,19 @@
+aws:
+  - config:
+      access_key: your_access_key
+      secret_key: your_secret_key
+      instance_id: your_instance_id
+      ec2_region: eu-central-1
+      ec2_amis:
+        - ami-0b6f46ba4d94838a0
+      ec2_keypair: your_ec2_keypair
+      ec2_secgroups:
+        - your_ec2_secgroup
+      ec2_instancetype: t3.small
+mineserver:
+  - config:
+      ssh_key_file_path: keys/your_ssh_key_file_name
+      memory_allocation: '-Xmx1024M -Xms1024M -XX:+UseConcMarkSweepGC '
+web_client:
+  - config:
+      server_password: your_server_password

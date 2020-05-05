@@ -170,7 +170,7 @@ web_client:
 1. Once this new project has been created, it is time to push the project to Heroku.
 	<code>git push heroku master</code>
 1. **Optional**: Use Environmental Variables
-    - If you don't want your passwords and keys to be exposed in the configuration .yml file, you have the option to use environmental variables instead. 
+    - If you don't want your passwords and keys to be exposed in the configuration .yml file or there is a configuration variable that you don't want to commit to change it each time, you have the option to use environmental variables instead. 
     - To do so, change any value you want to obscure in the [ec2_conf.yml file](configs/ec2_conf.yml) like this:
     - e.g. change this: `secret_key: YourAWSSecretKeyHere` to this: `secret_key: !ENV ${SECRET_KEY}`
     - where `SECRET_KEY` is the name of the environmental variable

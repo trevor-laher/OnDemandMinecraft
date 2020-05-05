@@ -239,7 +239,7 @@ def initServerMC():
 if __name__ == "__main__":
     # Initialize
     args = _argparser()
-    _setup_log(log_path=args.log)
+    _setup_log(log_path=args.log, debug=args.debug)
 
     # Load the configuration
     logger = logging.getLogger('Init')
@@ -263,7 +263,7 @@ if __name__ == "__main__":
                                 memory_allocation=mineserver_config['memory_allocation'])
         # Start the Flask app
         logger.debug("Starting the flask app..")
-        app.run()
+        app.run(port=8000, debug=args.debug)
     elif args.run_mode == 'create_instance':
         logger = logging.getLogger('Create Instance')
         create_instance()

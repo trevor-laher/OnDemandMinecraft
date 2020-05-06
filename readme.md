@@ -50,7 +50,9 @@ can be created via the [server.py script](server.py) (using the flag `-r create_
           ssh_key_file_path: ./keys/YourKeyFileName.pem # Modify this
     ............................................................
     ```
-
+    
+    <i>You have also the option to upload the key to <b>Dropbox</b> in order to keep it hidden from the repo. See the [Dropbox Setup](#dropbox) section.</i>
+    
 1. This step is concerned with creating the AWS instance. View [https://docs.aws.amazon.com/general/latest/gr/rande.html](https://docs.aws.amazon.com/general/latest/gr/rande.html) (Or google AWS Regions), and copy the  **Region** column for the **Region Name** of where you wish to host your server. In [ec2_conf.yml](configs/ec2_conf.yml), set the **ec2_region** variable to the copied value.
 
     ```yaml
@@ -177,6 +179,41 @@ web_client:
     - To set the environmental variables in Heroku refer to [this guide](https://devcenter.heroku.com/articles/config-vars).
 1. The URL to your hosted site should be: YourProjectNameHere.herokuapp.com
 1. Access your site and launch/access your server!
+
+# Dropbox Setup (Optional) <a name = "dropbox"></a>
+In this step, you have the option to use [Dropbox](https://www.dropbox.com/) in order to upload your ssh key file there for it to be hidden from the Github repo and at the same time available for download from Heroku when needed. You can skip this step if you you want to use a private repository.
+1. Setup a [Dropbox account](https://www.dropbox.com/) if you haven't already.
+1. Create an [Api Key](https://dropbox.tech/developers/generate-an-access-token-for-your-own-account) for your Dropbox account.
+1. Add the `cloudstore` section in the [ec2_conf.yml file](configs/ec2_conf.yml):
+    ```yaml
+    aws:
+      - config:
+          access_key: YourAWSAccessKeyIdHere
+          secret_key: YourAWSSecretKeyHere
+          instance_id: i-yourInstanceIdHere
+          ec2_secgroups:
+            - YourGroupNameHere
+          ec2_keypair: YourKeyPairName
+          ec2_region: Your-Region-Here
+          ec2_instancetype: t3.yourSizeHere
+          ec2_amis:
+            - ami-YourImageIdHere
+    mineserver:
+      - config:
+          ssh_key_file_path: ./keys/YourKeyFileName.pem
+    web_client:
+      - config:
+          server_password: YourPasswordHere # Modify this
+    cloudstore:
+      - config:
+          api_key: !ENV ${DROPBOX_API_KEY} # Modify this
+          remote_folder: OnDemandMinecraft # Modify this
+    ............................................................
+    ```
+1. Set an os variable for the Dropbox api key (as described in the 5th step of the previous section) and modify the corresponding section in the [ec2_conf.yml file](configs/ec2_conf.yml).
+1. Do the same for the `remote_folder` which represents tha name of the Dropbox in which the ssh key file will be stored.
+1. Lastly, after placing the ssh key file in the `keys` folder, upload the file by executing:
+   <code>python server.py -c configs/<config name>>.yml -r upload_key_file</code>
 
 # AWS Instance Configuration
 This step will configure the AWS Linux server to run the minecraft server. It will include SSH connecting to the server, gaining admin privileges, installing java, directory setup, moving shell scripts onto the server, and making a CRON job for these shell scripts. Note that this step will include both an SSH client and a File Transfer client (such as FileZilla) on your PC.

@@ -165,6 +165,7 @@ web_client:
 ............................................................
 ```
 
+1. Set the name of the configuration you will be using at the line 18 in [server.py](server.py) like this: `CONFIG_NAME = 'ec2_conf_with_os_vars.yml'`
 1. Create or have access to a Heroku account.
 1. Install and setup the **Heroku CLI** onto your computer. [https://devcenter.heroku.com/articles/heroku-cli#download-and-install](https://devcenter.heroku.com/articles/heroku-cli#download-and-install)
 1. In the command line for the directory of this project, type:

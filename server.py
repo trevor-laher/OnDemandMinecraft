@@ -15,6 +15,10 @@ from cloudstore.dropbox_cloudstore import DropboxCloudstore
 app = Flask(__name__)
 CORS(app)
 
+CONFIG_NAME = 'ec2_conf_with_os_vars.yml'
+DEFAULT_CONFIG: str = os.path.join('configs', CONFIG_NAME)
+DEFAULT_LOG: str = os.path.join('logs', 'out.log')
+
 
 def _setup_log(log_path: str = 'logs/output.log', debug: bool = False) -> None:
     """
@@ -295,40 +299,53 @@ def initServerMC():
     return render_template('index.html', ipMessage=message)
 
 
-if __name__ == "__main__":
+def setup_classes(config_file: str, log: str, debug: bool):
     # Initialize
-    args = _argparser()
-    _setup_log(log_path=args.log, debug=args.debug)
+    _setup_log(log_path=log, debug=debug)
 
     # Load the configuration
     logger = logging.getLogger('Init')
     logger.debug("Loading the configs..")
-    config = Configuration(config_src=args.config_file)
+    config = Configuration(config_src=config_file)
     aws_config = config.get_aws_configs()[0]
     mineserver_config = config.get_mineserver_configs()[0]
     web_client_config = config.get_web_client_configs()[0]
+    web_client_config['permitted_days'] = [day.strip() for day in web_client_config['permitted_days'].split(',')]
+    return logger, config, aws_config, mineserver_config, web_client_config
 
+
+def init_flask_server():
+    global logger, config, sshClient, key, aws_config, mineserver_config, web_client_config, mineserver
+
+    logger = logging.getLogger('Flask App')
+    # Download key file from Dropbox if requested
+    if 'cloudstore' in config.config_attributes:
+        cloudstore_config = config.get_cloudstore_configs()[0]
+        cloudstore = DropboxCloudstore(config=cloudstore_config)
+        download_key_file(cloudstore=cloudstore,
+                          key_file_path=mineserver_config['ssh_key_file_path'])
+    # Setup paraminko ssh information
+    logger.debug("Setting up paraminko ssh information")
+    key = paramiko.RSAKey.from_private_key_file(mineserver_config['ssh_key_file_path'])
+    sshClient = paramiko.SSHClient()
+    sshClient.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+    # Initialize the Mineserver class
+    logger.debug("Initializing the Mineserver class..")
+    mineserver = Mineserver(instance_id=aws_config['instance_id'],
+                            memory_allocation=mineserver_config['memory_allocation'])
+    # Start the Flask app
+    logger.debug("Starting the flask app..")
+
+
+if __name__ == "__main__":
+    args = _argparser()
+    logger, config, aws_config, mineserver_config, web_client_config = setup_classes(config_file=args.config_file,
+                                                                                     log=args.log,
+                                                                                     debug=args.debug)
     if args.run_mode == 'run_flask':
-        logger = logging.getLogger('Flask App')
-        # Download key file from Dropbox if requested
-        if 'cloudstore' in config.config_attributes:
-            cloudstore_config = config.get_cloudstore_configs()[0]
-            cloudstore = DropboxCloudstore(config=cloudstore_config)
-            download_key_file(cloudstore=cloudstore,
-                              key_file_path=mineserver_config['ssh_key_file_path'])
-        # Setup paraminko ssh information
-        logger.debug("Setting up paraminko ssh information")
-        key = paramiko.RSAKey.from_private_key_file(mineserver_config['ssh_key_file_path'])
-        sshClient = paramiko.SSHClient()
-        sshClient.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-        # Initialize the Mineserver class
-        logger.debug("Initializing the Mineserver class..")
-        mineserver = Mineserver(instance_id=aws_config['instance_id'],
-                                memory_allocation=mineserver_config['memory_allocation'])
-        # Start the Flask app
-        logger.debug("Starting the flask app..")
-        app.run(port=8000, debug=args.debug)
+        init_flask_server()
+        app.run(host=args.address, port=args.port, debug=args.debug)
     elif args.run_mode == 'create_instance':
         logger = logging.getLogger('Create Instance')
         create_instance()
@@ -340,3 +357,8 @@ if __name__ == "__main__":
                         key_file_path=mineserver_config['ssh_key_file_path'])
     else:
         raise argparse.ArgumentTypeError('Invalid run mode specified!')
+else:
+    logger, config, aws_config, mineserver_config, web_client_config = setup_classes(config_file=DEFAULT_CONFIG,
+                                                                                     log=DEFAULT_LOG,
+                                                                                     debug=False)
+    init_flask_server()

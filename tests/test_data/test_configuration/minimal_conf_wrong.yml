@@ -1,0 +1,7 @@
+property1: test
+property2:
+  - subproperty1: 10
+    subproperty2:
+        - 123
+        - 234
+property3: test_tag

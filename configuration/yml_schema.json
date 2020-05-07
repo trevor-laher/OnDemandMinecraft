@@ -1,0 +1,166 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "aws": {
+      "$ref": "#/definitions/aws"
+    },
+    "mineserver": {
+      "$ref": "#/definitions/mineserver"
+    },
+    "web_client": {
+      "$ref": "#/definitions/web_client"
+    },
+    "cloudstore": {
+      "$ref": "#/definitions/cloudstore"
+    }
+  },
+  "required": [
+    "aws",
+    "mineserver",
+    "web_client"
+  ],
+  "definitions": {
+    "aws": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "additionalProperties": false,
+      "required": [
+        "config"
+      ],
+      "properties": {
+        "type": {
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "access_key",
+            "secret_key",
+            "instance_id",
+            "ec2_region",
+            "ec2_amis",
+            "ec2_keypair",
+            "ec2_secgroups",
+            "ec2_instancetype"
+          ],
+          "properties": {
+            "access_key": {
+              "type": "string"
+            },
+            "secret_key": {
+              "type": "string"
+            },
+            "instance_id": {
+              "type": "string"
+            },
+            "ec2_region": {
+              "type": "string"
+            },
+            "ec2_amis": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ec2_keypair": {
+              "type": "string"
+            },
+            "ec2_secgroups": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ec2_instancetype": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "mineserver": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "additionalProperties": false,
+      "required": [
+        "config"
+      ],
+      "properties": {
+        "config": {
+          "type": "object",
+          "required": [
+            "ssh_key_file_path",
+            "memory_allocation"
+          ],
+          "properties": {
+            "ssh_key_file_path": {
+              "type": "string"
+            },
+            "memory_allocation": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        }
+      }
+    },
+    "web_client": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "additionalProperties": false,
+      "required": [
+        "config"
+      ],
+      "properties": {
+        "config": {
+          "type": "object",
+          "required": [
+            "server_password"
+          ],
+          "properties": {
+            "server_password": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        }
+      }
+    },
+    "cloudstore": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "additionalProperties": false,
+      "required": [
+        "config"
+      ],
+      "properties": {
+        "config": {
+          "type": "object",
+          "required": [
+            "api_key",
+            "remote_folder"
+          ],
+          "properties": {
+            "api_key": {
+              "type": "string"
+            },
+            "remote_folder": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}
